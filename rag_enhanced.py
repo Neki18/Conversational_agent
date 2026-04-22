@@ -41,12 +41,36 @@ class SemanticRAG:
         except:
             kb = self._get_default_knowledge()
         
-        # Add pricing information
-        for plan_name, plan_details in kb.get("pricing", {}).items():
+        # Add company information
+        if "company" in kb:
+            company_info = kb["company"]
             documents.append({
-                "text": plan_details,
+                "text": f"{company_info.get('name', '')} - {company_info.get('description', '')}",
+                "category": "company",
+                "type": "general"
+            })
+        
+        # Add pricing information - handle both dict and string formats
+        for plan_name, plan_details in kb.get("pricing", {}).items():
+            if isinstance(plan_details, dict):
+                # New format with structured data
+                plan_text = f"{plan_details.get('name', plan_name)}: {plan_details.get('price', 'N/A')}. {plan_details.get('description', '')}. Features: {plan_details.get('features', '')}"
+            else:
+                # Old format with string
+                plan_text = plan_details
+            
+            documents.append({
+                "text": plan_text,
                 "category": "pricing",
                 "plan": plan_name
+            })
+        
+        # Add feature information
+        for feature_name, feature_text in kb.get("features", {}).items():
+            documents.append({
+                "text": feature_text,
+                "category": "feature",
+                "feature": feature_name
             })
         
         # Add policy information
@@ -57,20 +81,12 @@ class SemanticRAG:
                 "policy": policy_name
             })
         
-        # Add platform features
-        features = {
-            "automation": "Automate content creation and publishing across multiple platforms",
-            "ai_agents": "Build and deploy AI agents for voice calls and chat support",
-            "analytics": "Track and analyze content performance with detailed metrics",
-            "collaboration": "Work with your team in real-time with collaboration tools",
-            "scheduling": "Schedule posts and campaigns across all your platforms"
-        }
-        
-        for feature_name, feature_text in features.items():
+        # Add FAQ information
+        for faq_key, faq_answer in kb.get("faq", {}).items():
             documents.append({
-                "text": feature_text,
-                "category": "feature",
-                "feature": feature_name
+                "text": faq_answer,
+                "category": "faq",
+                "question": faq_key
             })
         
         return documents
