@@ -1,9 +1,19 @@
 import warnings
-warnings.filterwarnings("ignore")
-
 import logging
-logging.getLogger('google.generativeai').setLevel(logging.ERROR)
-logging.getLogger('absl').setLevel(logging.ERROR)
+import os
+import sys
+
+# Suppress all warnings and logs
+warnings.filterwarnings("ignore")
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+logging.disable(logging.CRITICAL)
+logging.getLogger('google.generativeai').setLevel(logging.CRITICAL)
+logging.getLogger('absl').setLevel(logging.CRITICAL)
+logging.getLogger('urllib3').setLevel(logging.CRITICAL)
+
+# Redirect stderr to suppress startup messages
+import io
+sys.stderr = io.StringIO()
 
 import google.generativeai as genai
 import json
