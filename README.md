@@ -269,7 +269,7 @@ To modify the chatbot:
 
 ## 🤝 Support
 
-For issues or questions, please create an issue or contact the development team.
+For issues or questions, please create an issue or contact me.
 
 ---
 
