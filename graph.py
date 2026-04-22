@@ -1,4 +1,4 @@
-from langgraph.graph import StateGraph
+from langgraph.graph import StateGraph, END
 from nodes import intent_node, rag_node, lead_node
 
 def build_graph():
@@ -10,7 +10,18 @@ def build_graph():
 
     builder.set_entry_point("intent")
 
-    builder.add_edge("intent", "rag")
-    builder.add_edge("rag", "lead")
+    # Decide where to go
+    builder.add_conditional_edges(
+        "intent",
+        lambda state: state["intent"],
+        {
+            "rag": "rag",
+            "lead": "lead"
+        }
+    )
+
+    # ✅ IMPORTANT: STOP after execution
+    builder.add_edge("rag", END)
+    builder.add_edge("lead", END)
 
     return builder.compile()

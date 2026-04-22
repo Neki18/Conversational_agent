@@ -1,157 +1,146 @@
 from intent import detect_intent
 import re
 
+
+# -------- HELPER: SMART RESPONSE --------
+def smart_reply(state, base_response):
+    history = state.get("history", [])
+
+    # Use last 2 messages for context
+    last_msgs = " ".join([msg["content"] for msg in history[-2:]])
+
+    # Make response feel contextual
+    if "okay" in last_msgs or "ok" in last_msgs:
+        return base_response + "\n\nLet me know what you'd like to explore next 🙂"
+
+    if "more" in last_msgs or "elaborate" in last_msgs:
+        return base_response + "\n\nI can go deeper into any part if you want 👍"
+
+    return base_response
+
+
+# ---------------- INTENT ----------------
 def intent_node(state):
-    user_input = state.get("input", "")
+    if state.get("intent") == "lead" and state.get("step") is not None:
+        return state
+
+    user_input = state["input"]
     state["intent"] = detect_intent(user_input)
     return state
 
 
-# ---------------- SMART RESPONSE ----------------
-
+# ---------------- RAG ----------------
 def rag_node(state):
-    intent = state.get("intent")
-    last_topic = state.get("last_topic")
+    text = state["input"].lower()
 
-    # GREETING
-    if intent == "greeting":
-        state["response"] = "Hey! 😊 How can I help you today?"
+    if "feature" in text or "platform" in text:
+        response = """Our platform helps creators grow using AI 🚀
 
-    # PRICING
-    elif intent == "pricing":
-        state["response"] = (
-            "We offer 3 plans:\n"
-            "• Free – Basic features\n"
-            "• Pro – ₹499/month\n"
-            "• Enterprise – Custom pricing\n\n"
-            "Want help choosing one?"
-        )
-        state["last_topic"] = "pricing"
+You can:
+• Automate content
+• Build AI agents
+• Analyze performance
 
-    # INFO
-    elif intent == "info":
-        user_input = state.get("input", "").lower()
+What would you like to explore?"""
 
-        if "call" in user_input or "agent" in user_input:
-            state["response"] = (
-                "Great question! 🤖\n"
-                "You can build AI agents that:\n"
-                "• Handle customer calls\n"
-                "• Answer queries automatically\n"
-                "• Integrate with your workflows\n\n"
-                "Do you want to build a voice agent or chat agent?"
-            )
+    elif "pricing" in text or "price" in text:
+        response = """We offer 3 plans:
 
-        elif "automate" in user_input:
-            state["response"] = (
-                "You can automate:\n"
-                "• Content creation\n"
-                "• Posting & scheduling\n"
-                "• Responses to users\n"
-                "• Analytics tracking\n\n"
-                "What kind of automation are you looking for?"
-            )
+• Free – Basic features  
+• Pro – ₹499/month  
+• Enterprise – Custom pricing  
 
-        elif "domain" in user_input:
-            state["response"] = (
-                "We work across multiple domains:\n"
-                "• Content Creation\n"
-                "• Customer Support Automation\n"
-                "• AI Chatbots & Voice Agents\n"
-                "• Marketing Automation\n\n"
-                "Which one interests you?"
-            )
+Want help choosing one?"""
 
-        else:
-            state["response"] = (
-                "Our platform helps creators grow using AI 🚀\n"
-                "You can automate tasks, build agents, and scale faster.\n\n"
-                "What would you like to explore?"
-            )
+    elif "agent" in text or "automation" in text:
+        response = """You can build AI agents 🤖:
 
-        state["last_topic"] = "info"
+1. Voice Agent (handles calls)
+2. Chat Agent (handles chats)
 
-    # FOLLOW-UP (THIS FIXES YOUR ISSUE)
-    elif intent == "followup":
-        if last_topic == "info":
-            state["response"] = (
-                "Sure! Let me break it down further 👇\n"
-                "• AI Agents → handle chats/calls automatically\n"
-                "• Automation → reduces manual work\n"
-                "• Insights → helps you grow faster\n\n"
-                "What part do you want to go deeper into?"
-            )
+Reply with 1 or 2 to continue."""
 
-        elif last_topic == "pricing":
-            state["response"] = (
-                "The Pro plan is best for most users 💡\n"
-                "It gives advanced automation + analytics.\n\n"
-                "Do you want to try it?"
-            )
+    elif text.strip() == "1":
+        response = """Voice agents can:
+• Handle calls 📞
+• Automate bookings
+• Provide support
 
-        else:
-            state["response"] = "Tell me what you'd like more details on 🙂"
+Do you want help setting one up?"""
 
-    # GENERAL (REMOVE BORING RESPONSE)
+    elif text.strip() == "2":
+        response = """Chat agents can:
+• Automate replies 💬
+• Handle FAQs
+• Provide instant support
+
+Let’s get you started!"""
+
+        state["intent"] = "lead"
+        state["step"] = "ask_name"
+
     else:
-        state["response"] = (
-            "I think you're exploring the platform 🙂\n"
-            "You can ask about features, pricing, or automation."
-        )
+        response = """I’m an AI assistant with limited scope 🙂
+
+I can help with:
+• Platform features
+• Pricing
+• Automation & agents
+
+If you need more advanced help, you can upgrade your plan."""
+
+    # ✅ make it smarter
+    final_response = smart_reply(state, response)
+
+    print("🤖:", final_response)
+
+    # ✅ store bot reply
+    state["history"].append({"role": "bot", "content": final_response})
 
     return state
 
 
 # ---------------- LEAD ----------------
-
-def is_valid_email(email):
-    return re.match(r"[^@]+@[^@]+\.[^@]+", email)
-
-
 def lead_node(state):
-    user_input = state.get("input", "")
-    intent = state.get("intent")
+    user_input = state["input"]
 
-    # only start if user shows interest
-    if intent != "lead" and not state.get("collecting"):
-        return state
+    if state.get("step") is None:
+        state["step"] = "ask_name"
+        response = "Before we continue, what's your name?"
 
-    state["collecting"] = True
-
-    if "name" not in state:
-        state["response"] = "Can I know your name?"
-        state["step"] = "name"
-        return state
-
-    if state.get("step") == "name":
+    elif state["step"] == "ask_name":
         state["name"] = user_input
-        state["response"] = f"Nice to meet you, {user_input}! 😊 What's your email?"
-        state["step"] = "email"
-        return state
+        state["step"] = "ask_email"
+        response = f"Nice to meet you, {user_input} 😊 What's your email?"
 
-    if state.get("step") == "email":
-        if not is_valid_email(user_input):
-            state["response"] = "That doesn't look like a valid email. Try again."
+    elif state["step"] == "ask_email":
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", user_input):
+            response = "That doesn't look like a valid email. Try again."
+            print("🤖:", response)
             return state
 
         state["email"] = user_input
-        state["response"] = "Which platform do you create content on?"
-        state["step"] = "platform"
-        return state
+        state["step"] = "ask_platform"
+        response = "Great 👍 Which platform do you create content on?"
 
-    if state.get("step") == "platform":
+    elif state["step"] == "ask_platform":
         state["platform"] = user_input
 
-        state["response"] = (
-            f"Perfect! 🎉\n"
-            f"Name: {state['name']}\n"
-            f"Email: {state['email']}\n"
-            f"Platform: {state['platform']}\n"
-            f"We’ll reach out soon 🚀"
-        )
+        response = f"""Perfect! 🎉
 
-        state["collecting"] = False
+Name: {state['name']}
+Email: {state['email']}
+Platform: {state['platform']}
+
+We’ll reach out soon 🚀"""
+
+        # reset
         state["step"] = None
-        return state
+        state["intent"] = None
+
+    print("🤖:", response)
+
+    # store bot reply
+    state["history"].append({"role": "bot", "content": response})
 
     return state

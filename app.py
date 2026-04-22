@@ -2,18 +2,28 @@ from graph import build_graph
 
 graph = build_graph()
 
-state = {}
-
 print("🤖 Chatbot started! Type 'exit' to stop.\n")
+
+state = {
+    "input": "",
+    "intent": None,
+    "step": None,
+    "name": None,
+    "email": None,
+    "platform": None,
+    "history": []   # ✅ NEW
+}
 
 while True:
     user_input = input("You: ")
 
     if user_input.lower() == "exit":
+        print("🤖: Bye! 👋")
         break
 
     state["input"] = user_input
 
-    state = graph.invoke(state)
+    # ✅ store user message
+    state["history"].append({"role": "user", "content": user_input})
 
-    print("🤖:", state.get("response"))
+    state = graph.invoke(state)
