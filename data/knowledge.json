@@ -1,10 +1,59 @@
 {
+  "company": {
+    "name": "Creator Automation Platform",
+    "description": "Empower creators with AI-driven automation tools to scale content production, manage social media, and build intelligent chatbots.",
+    "mission": "Make professional-grade automation accessible to every creator."
+  },
   "pricing": {
-    "basic": "Basic Plan: $29/month, 10 videos/month, 720p",
-    "pro": "Pro Plan: $79/month, Unlimited videos, 4K, AI captions"
+    "basic": {
+      "name": "Basic Plan",
+      "price": "$29/month",
+      "videos": "10 videos/month",
+      "quality": "720p resolution",
+      "features": "AI content generation, basic analytics, email support",
+      "description": "Perfect for creators just starting out with automation"
+    },
+    "pro": {
+      "name": "Pro Plan",
+      "price": "$79/month",
+      "videos": "Unlimited videos/month",
+      "quality": "4K resolution",
+      "features": "AI captions, advanced analytics, priority support, team collaboration",
+      "description": "For serious creators wanting maximum capabilities"
+    },
+    "enterprise": {
+      "name": "Enterprise Plan",
+      "price": "Custom pricing",
+      "videos": "Unlimited everything",
+      "quality": "4K+ resolution",
+      "features": "Custom integrations, dedicated account manager, white-label options, API access",
+      "description": "For agencies and large teams with special requirements"
+    }
+  },
+  "features": {
+    "ai_content_generation": "Automatically generate video scripts, captions, and thumbnails using advanced AI. Save hours on content planning and creation.",
+    "multi_platform_posting": "Post to YouTube, TikTok, Instagram, LinkedIn, and more simultaneously. Manage all platforms from one dashboard.",
+    "voice_ai_agent": "Create voice-enabled AI agents that can handle customer calls, conduct interviews, and provide 24/7 support.",
+    "chat_ai_agent": "Build intelligent chatbots that answer customer questions, capture leads, and handle support tickets automatically.",
+    "analytics_dashboard": "Get detailed insights into your content performance with real-time metrics, audience analytics, and trend detection.",
+    "team_collaboration": "Invite team members, assign tasks, review content, and collaborate in real-time on your projects.",
+    "scheduling": "Plan and schedule posts weeks in advance. Optimize posting times based on when your audience is most active.",
+    "content_templates": "Access thousands of pre-made templates to jumpstart your content creation process.",
+    "bulk_processing": "Process multiple videos or posts in batch mode to save time on repetitive tasks.",
+    "api_access": "Integrate our platform with your existing tools and workflows using our comprehensive REST API."
   },
   "policies": {
-    "refund": "No refunds after 7 days",
-    "support": "24/7 support only on Pro plan"
+    "refund": "30-day money-back guarantee. No questions asked if you're not satisfied with the platform.",
+    "support": "24/7 email support on all plans. Pro and Enterprise plans include priority chat and phone support.",
+    "data_security": "We use enterprise-grade encryption and comply with GDPR, CCPA, and SOC 2 standards to protect your data.",
+    "cancellation": "Cancel anytime. Your data remains accessible for 30 days after cancellation.",
+    "billing": "Charged monthly. Discounts available for annual billing (save 20%). No hidden fees."
+  },
+  "faq": {
+    "get_started": "Getting started is easy! Sign up for a free trial, connect your social media accounts, and start creating AI-powered content in minutes.",
+    "free_trial": "Yes! We offer a 14-day free trial with full access to all Pro features. No credit card required.",
+    "integrations": "We integrate with YouTube, TikTok, Instagram, LinkedIn, Twitter, Twitch, and more. API access available for custom integrations.",
+    "customer_support": "Our support team is available 24/7 via email. Pro and Enterprise users also get priority chat and phone support.",
+    "video_limits": "Basic plan: 10 videos/month. Pro plan: Unlimited. All videos can be up to 1 hour long."
   }
 }
